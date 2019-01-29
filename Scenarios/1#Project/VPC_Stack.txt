@@ -16,11 +16,3 @@ OtherInfo:
 Quick Info :
 1.NAT Gateway lets instances in Private Subnet to reach Internet but vice-versa not possible.
 2.Internet Gateway allows users from Internet to reach instances and they can response back provided proper NACL and Security Groups rules attached.
-
-
-Try this theme in wordpress
-Morning Time
-Writing
-TheGem
-Pofo
-Furion
