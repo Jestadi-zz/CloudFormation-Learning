@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  MyEc2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: ami-00b6a8a2bd28daf19
+      Tenancy: default
+      KeyName: !Ref MyKeyName
+      InstanceType: !Ref MyInstanceType
+      AvailabilityZone: !Ref ListAZ
+      Tags:
+        - Key: Name
+          Value: Test-Linux
+Parameters:
+    ListAZ:
+      Type: AWS::EC2::AvailabilityZone::Name     # Required, one of: String, Number, List<Number>, CommaDelimitedList
+                # OR
+                # AWS::EC2::AvailabilityZone::Name
+                # AWS::EC2::Image::Id
+                # AWS::EC2::Instance::Id
+                # AWS::EC2::KeyPair::KeyName
+                # AWS::EC2::SecurityGroup::GroupName
+                # AWS::EC2::SecurityGroup::Id
+                # AWS::EC2::Subnet::Id
+                # AWS::EC2::Volume::Id
+                # AWS::EC2::VPC::Id
+                # AWS::Route53::HostedZone::Id
+                # OR List<AWS-Type>
+      Description: Select an AZ    # optional, string, description of parameter value
+    MyKeyName:
+      Type: AWS::EC2::KeyPair::KeyName      # Required, one of: String, Number, List<Number>, CommaDelimitedList
+                # OR
+                # AWS::EC2::AvailabilityZone::Name
+                # AWS::EC2::Image::Id
+                # AWS::EC2::Instance::Id
+                # AWS::EC2::KeyPair::KeyName
+                # AWS::EC2::SecurityGroup::GroupName
+                # AWS::EC2::SecurityGroup::Id
+                # AWS::EC2::Subnet::Id
+                # AWS::EC2::Volume::Id
+                # AWS::EC2::VPC::Id
+                # AWS::Route53::HostedZone::Id
+                # OR List<AWS-Type>
+      Description: Please Select the KeyPair    # optional, string, description of parameter value
+      ConstraintDescription: Please select a valid KeyPair  # optional, string, error message returned if regex is violated
+    MyInstanceType:
+      Type: String     # Required, one of: String, Number, List<Number>, CommaDelimitedList
+      Description: Select an EC2 Instance Type    # optional, string, description of parameter value
+      Default: t2.micro    # optional
+      AllowedValues:        # optional
+        - t1.micro
+        - t2.nano
+        - t2.micro
+        - t2.small
+      ConstraintDescription: Please select a valid ec2-instance-type  # optional, string, error message returned if regex is violated

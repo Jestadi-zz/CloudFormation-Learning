@@ -1,0 +1,19 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  MyEc2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-00b6a8a2bd28daf19
+      Tenancy: default
+      KeyName: test
+      InstanceType: t2.micro
+      #Running Apache Server through user data which has to be Base64 encoded format
+      #http://www.utilities-online.info/base64/#.W35Q1OgzbIU
+      UserData: IyEvYmluL2Jhc2gKc3VkbyBzdQp5dW0gdXBkYXRlIC15Cnl1bSBpbnN0YWxsIC15IGh0dHBkCnNlcnZpY2UgaHR0cGQgc3RhcnQKY2hrY29uZmlnIG9u
+      #Tags are list of key-Value-pairs so only have to use hyphen
+      SecurityGroups:
+        - !ImportValue Test-SSH-sg
+      Tags:
+        - Key: Name
+          Value: Test-Linux

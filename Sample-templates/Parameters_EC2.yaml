@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  MyEc2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      KeyName: !Ref SSHKeyName
+      ImageId: ami-00b6a8a2bd28daf19
+      InstanceType: !Ref Ec2InstanceType
+      SubnetId: !Ref SubnetList
+      Tenancy: default
+      SecurityGroups:
+        - !Ref SSHsg
+      Tags:
+        - Key: Name
+          Value: test
+  SSHsg:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: SSH access SecurityGroupIngress
+Parameters:
+  SSHKeyName:
+    Type: 'AWS::EC2::KeyPair::KeyName'
+    Description: Select an existing KeyPair
+    ConstraintDescription: Must be an existing keyPair
+  Ec2InstanceType:
+    Description: Select an EC2 Instance Type
+    Type: String
+    Default: t2.micro
+    ConstraintDescription: Must be a valid EC2 Instance Type
+    AllowedValues:
+      - t2.nano
+      - t2.small
+      - t2.micro
+      - t2.large
+      - t2.medium
+  SubnetList:
+    Description: List of SubnetId's
+    Type: String
+  ListVPC:
+    Description: List of VPC's
+    Type: 'List<AWS::EC2::VPC::Id>'

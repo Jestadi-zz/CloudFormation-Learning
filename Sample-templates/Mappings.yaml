@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >
+  Its a Re-Usable Template that creates an EC2-instance,security group(allowing SSH and RDP traffic) in two regions Mumbai and N.Virginia
+Resources:
+  MyEc2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !FindInMap [ RegionMap, !Ref 'AWS::Region', !Ref VMType ]     # Mapping AMI-id
+      InstanceType: t2.micro     # Its hard-coded here but we can make it as Parameter for better resuablitiy with Instance Types
+      KeyName: !Ref SSHKeyName     # Referencing to Parameter
+      SecurityGroups:                # referencing to other ResourceType
+        - !Ref SSHsg
+      Tenancy: default     # other values are host,dedicated
+  SSHsg:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: SSH and RDP access    # just name it as u wish for understanding
+      SecurityGroupIngress:                # its a list of rules
+        - CidrIp: 0.0.0.0/0     # origin source Ip and Port Number . Here 0.0.0.0/0 means any Ip with any Port number.....
+          IpProtocol: tcp     # https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_AuthorizeSecurityGroupIngress.html
+          FromPort: 22   # Destination Port range .... Its is the starting port number in case if u want to define Port Range
+          ToPort: 22 # Destination Port range .... Its is the ending port number in case if u want to define Port Range
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: tcp     # tcp,udp,icmp,-1(specifies all protocols)
+          ToPort: 3389
+          FromPort: 3389
+Mappings:
+  RegionMap: #Mapping Region and AMI's
+    ap-south-1:
+      LinuxAMI: ami-00b6a8a2bd28daf19
+      WindowsAMI: ami-04c342a3b8070ffa1
+    us-east-1:
+      LinuxAMI: ami-04681a1dbd79675a5
+      WindowsAMI: ami-07355e1e938a6b6cb
+Parameters:
+  VMType:
+    Type: String # Here it is used to Map VMType with Region
+    Description: Select an VM type in Mumbai/N.Virginia
+    Default: LinuxAMI
+    AllowedValues:
+      - LinuxAMI
+      - WindowsAMI
+    ConstraintDescription: Must be one of allowed values
+  SSHKeyName:
+    Type: AWS::EC2::KeyPair::KeyName      # Required, one of: String, Number, List<Number>, CommaDelimitedList
+    Description: Select a KeyPair for Programmatic Access    # optional, string, description of parameter value

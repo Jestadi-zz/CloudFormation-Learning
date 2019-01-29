@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  HTTPsg:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Provides HTTP Access
+      GroupName: MySG-HTTP
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          FromPort: 80
+          ToPort: 80
+          IpProtocol: tcp
+Outputs:
+  MySSHsg:
+    Description: For Cross reference
+    Value: !Ref HTTPsg
+    Export:
+      Name: Test-HTTP-sg

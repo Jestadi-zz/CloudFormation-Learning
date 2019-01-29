@@ -1,0 +1,135 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  MYCidrBlock:
+    Description: IPv4 address space
+    Type: String
+    MinLength: '9'
+    MaxLength: '18'
+    Default: 10.0.0.0/16
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+  VPCSubnetIpBlocks:
+    Description: Comma-delimited list of three CIDR blocks
+    Type: CommaDelimitedList
+    Default: '10.0.1.0/24, 10.0.2.0/24, 10.0.3.0/24, 10.0.4.0/24'
+  AZonePublic:
+    Description: Please select the AvailabilityZone to create a Publicsubnet
+    Type: 'List<AWS::EC2::AvailabilityZone::Name>'
+  AZonePrivate:
+    Description: Please select the AvailabilityZone to create a Publicsubnet
+    Type: 'List<AWS::EC2::AvailabilityZone::Name>'
+Resources:
+  MyVPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: !Ref MYCidrBlock
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: CFProject
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: dd0266ed-fca6-46f7-a4f0-4698036dc270
+  DMZ1:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Select
+        - 0
+        - !Ref AZonePublic
+      CidrBlock: !Select
+        - 0
+        - !Ref VPCSubnetIpBlocks
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: PublicSub-1a
+      VpcId: !Ref MyVPC
+  DMZ2:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Select
+        - 1
+        - !Ref AZonePublic
+      CidrBlock: !Select
+        - 1
+        - !Ref VPCSubnetIpBlocks
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: PublicSub-1b
+      VpcId: !Ref MyVPC
+  PRV1:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Select
+        - 0
+        - !Ref AZonePrivate
+      CidrBlock: !Select
+        - 2
+        - !Ref VPCSubnetIpBlocks
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: PrivateSub-1a
+      VpcId: !Ref MyVPC
+  PRV2:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Select
+        - 1
+        - !Ref AZonePrivate
+      CidrBlock: !Select
+        - 3
+        - !Ref VPCSubnetIpBlocks
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: PrivateSub-1b
+      VpcId: !Ref MyVPC
+  MyIGW:
+    Type: 'AWS::EC2::InternetGateway'
+    Properties:
+      Tags:
+        - Key: Name
+          Value: CFProject
+  VPCandIGW:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref MyIGW     # optional
+      VpcId: !Ref MyVPC     # required
+  PublicRT:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref MyVPC
+  PrivateRT:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref MyVPC
+  ToInternet:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      GatewayId: !Ref MyIGW
+      DestinationCidrBlock: 0.0.0.0/0
+      RouteTableId: !Ref PublicRT
+  DMZ1toPublicRT:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRT     # required
+      SubnetId: !Ref DMZ1    # required
+  DMZ2toPublicRT:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRT     # required
+      SubnetId: !Ref DMZ2    # required
+  PRV1toPrivateRT:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRT     # required
+      SubnetId: !Ref PRV1    # required
+  PRV2toPrivateRT:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRT     # required
+      SubnetId: !Ref PRV2    # required

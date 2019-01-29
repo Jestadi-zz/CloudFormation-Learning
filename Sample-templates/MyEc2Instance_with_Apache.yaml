@@ -1,0 +1,14 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  MyEc2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: ami-00b6a8a2bd28daf19
+      Tenancy: default
+      KeyName: test
+      InstanceType: t2.micro
+      #Running Apache Server through user data
+      UserData: IyEvYmluL2Jhc2gKc3VkbyBzdQp5dW0gdXBkYXRlIC15Cnl1bSBpbnN0YWxsIC15IGh0dHBkCnNlcnZpY2UgaHR0cGQgc3RhcnQKY2hrY29uZmlnIG9uCmVjaG8gJEhPU1ROQU1FID4gL3Zhci93d3cvaHRtbC9pbmRleC5odG1s
+      Tags:
+        - Key: Name
+          Value: Test-Linux
