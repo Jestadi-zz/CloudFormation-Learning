@@ -1,2 +1,2 @@
 # CloudFormation-Learning
-For better understanding of different Blocks in cloudformation templates
+_For better understanding of different Blocks in cloudformation templates_
