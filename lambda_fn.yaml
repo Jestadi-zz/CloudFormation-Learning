@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lambda function with cfn-response.
+Resources:
+  lambdarole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: '*'
+                Resource: '*'
+  cfnlambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Join
+        - ''
+        - - 'MyLambdaCloudFormation-'
+          - !Ref 'AWS::Region'
+      Runtime: python3.7
+      Role: !GetAtt lambdarole.Arn
+      Handler: lambda_function.lambda_handler
+      Code:
+        ZipFile: |
+            import json
+            import boto3
+            import os
+
+            dummy = os.getenv('CHECK')
+            lambda_client = boto3.client('lambda')
+
+            def lambda_handler(event, context):
+                # TODO implement
+                print(event)
+                print(type(event))
+                msg = json.dumps(event)
+                print(dummy)
+                lambda_invoke = lambda_client.invoke(
+                                        FunctionName='arn:aws:lambda:eu-west-1:134293678177:function:hello2',
+                                        InvocationType='RequestResponse',
+                                        LogType='Tail',
+                                        Payload=msg
+                                    )
+                print(lambda_invoke)
+                return {
+                    'statusCode': 200,
+                    'body': json.dumps('Hello from Lambda!')
+                }
+
+
